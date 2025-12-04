@@ -18,8 +18,9 @@ def validate_instance_types(ctx, param, value):
     """
     from ptp_tester.models import InstanceTypeSpec
     
+    # Allow None if config file will provide the value
     if not value:
-        raise click.BadParameter("At least one instance type must be provided")
+        return None
     
     # Split by comma and strip whitespace
     instance_type_specs_raw = [t.strip() for t in value.split(',') if t.strip()]
@@ -115,8 +116,9 @@ def validate_subnet_id(ctx, param, value):
     AWS subnet IDs follow the pattern: subnet-[0-9a-f]{8,17}
     Examples: subnet-12345678, subnet-1234567890abcdef0
     """
+    # Allow None if config file will provide the value
     if not value:
-        raise click.BadParameter("Subnet ID is required")
+        return None
     
     # AWS subnet ID pattern
     subnet_pattern = re.compile(r'^subnet-[0-9a-f]{8,17}$')
@@ -138,8 +140,9 @@ def validate_private_key_path(ctx, param, value):
     - File is readable
     - File permissions (warns if too permissive)
     """
+    # Allow None if config file will provide the value
     if not value:
-        raise click.BadParameter("Private key path is required")
+        return None
     
     key_path = Path(value)
     
