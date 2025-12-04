@@ -111,6 +111,8 @@ class TestConfig:
         Raises:
             ValueError: If instance_types format is invalid
         """
+        from pathlib import Path
+        
         # Parse instance_types if present
         instance_types = None
         if 'instance_types' in config_dict and config_dict['instance_types']:
@@ -140,11 +142,16 @@ class TestConfig:
                 else:
                     raise ValueError(f"Invalid instance type specification format: {spec}")
         
+        # Expand ~ in private_key_path if present
+        private_key_path = config_dict.get('private_key_path')
+        if private_key_path:
+            private_key_path = str(Path(private_key_path).expanduser())
+        
         return cls(
             instance_types=instance_types,
             subnet_id=config_dict.get('subnet_id'),
             key_name=config_dict.get('key_name'),
-            private_key_path=config_dict.get('private_key_path'),
+            private_key_path=private_key_path,
             region=config_dict.get('region'),
             profile=config_dict.get('profile'),
             ami_id=config_dict.get('ami_id'),
