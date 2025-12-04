@@ -630,7 +630,7 @@ def main(config, instance_types, subnet_id, key_name, private_key_path, region, 
             
             # Prompt user for which instances to keep
             click.echo("\nSelect instances to keep (comma-separated numbers, 'all' to keep all, or 'none' to terminate all):")
-            selection = click.prompt("Selection", default="all")
+            selection = click.prompt("Selection", default="all").strip()
             
             if selection.lower() == 'all':
                 click.echo("\nKeeping all PTP-functional instances.")
@@ -673,9 +673,9 @@ def main(config, instance_types, subnet_id, key_name, private_key_path, region, 
                             logger.info(f"Keeping instance {instance_id}")
                             
                 except (ValueError, IndexError) as e:
-                    click.echo(click.style(f"\nInvalid selection: {e}", fg='red'))
+                    click.echo(click.style(f"\nInvalid selection '{selection}': {e}", fg='red'))
                     click.echo("Keeping all instances by default.")
-                    logger.warning(f"Invalid selection, keeping all instances: {e}")
+                    logger.warning(f"Invalid selection '{selection}', keeping all instances: {e}")
         
         click.echo("\n" + "=" * 60)
         click.echo(click.style("Testing complete!", fg='green'))
