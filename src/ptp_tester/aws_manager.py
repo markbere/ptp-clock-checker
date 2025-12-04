@@ -411,8 +411,10 @@ class AWSManager:
         
         # Add placement group if provided
         if config.placement_group:
-            launch_params['Placement'] = {'GroupName': config.placement_group}
-            logger.info(f"Instance will be launched into placement group: {config.placement_group}")
+            # Resolve placement group ID to name if needed (AWS API requires name, not ID)
+            pg_name = self._resolve_placement_group_name(config.placement_group)
+            launch_params['Placement'] = {'GroupName': pg_name}
+            logger.info(f"Instance will be launched into placement group: {pg_name}")
             
         try:
             logger.info(f"Launching instance: type={config.instance_type}, subnet={config.subnet_id}, ami={ami_id}")
@@ -597,11 +599,57 @@ class AWSManager:
             logger.error(f"Failed to get instance details: {e}")
             raise
             
+    def _resolve_placement_group_name(self, placement_group_identifier: str) -> str:
+        """Resolve placement group ID to name if needed.
+        
+        AWS run_instances API requires placement group name, not ID.
+        This method converts pg-xxxxx IDs to their corresponding names.
+        
+        Args:
+            placement_group_identifier: Placement group name or ID
+            
+        Returns:
+            Placement group name
+            
+        Raises:
+            ValueError: If placement group cannot be found
+        """
+        # If it's already a name (not an ID), return as-is
+        if not placement_group_identifier.startswith('pg-'):
+            return placement_group_identifier
+        
+        # It's an ID, need to resolve to name
+        ec2_client = self._get_ec2_client()
+        
+        try:
+            logger.info(f"Resolving placement group ID to name: {placement_group_identifier}")
+            response = ec2_client.describe_placement_groups(
+                GroupIds=[placement_group_identifier]
+            )
+            
+            placement_groups = response.get('PlacementGroups', [])
+            
+            if not placement_groups:
+                raise ValueError(
+                    f"Placement group ID '{placement_group_identifier}' not found in region {self.region}"
+                )
+            
+            pg_name = placement_groups[0].get('GroupName')
+            logger.info(f"Resolved placement group ID {placement_group_identifier} to name: {pg_name}")
+            return pg_name
+            
+        except Exception as e:
+            logger.error(f"Failed to resolve placement group ID: {e}")
+            raise ValueError(f"Failed to resolve placement group ID '{placement_group_identifier}': {e}")
+    
     def validate_placement_group(self, placement_group_name: str) -> tuple[bool, Optional[str]]:
         """Validate that a placement group exists and is available.
         
+        Supports both placement group names and IDs (pg-xxxxx format).
+        If an ID is provided, it will be resolved to the name.
+        
         Args:
-            placement_group_name: Name of the placement group to validate
+            placement_group_name: Name or ID of the placement group to validate
             
         Returns:
             Tuple of (is_valid: bool, error_message: Optional[str])
@@ -613,9 +661,17 @@ class AWSManager:
         try:
             logger.info(f"Validating placement group: {placement_group_name}")
             
-            response = ec2_client.describe_placement_groups(
-                GroupNames=[placement_group_name]
-            )
+            # Check if input is a placement group ID (pg-xxxxx format)
+            if placement_group_name.startswith('pg-'):
+                logger.info(f"Detected placement group ID format, searching by GroupId")
+                response = ec2_client.describe_placement_groups(
+                    GroupIds=[placement_group_name]
+                )
+            else:
+                logger.info(f"Using placement group name format")
+                response = ec2_client.describe_placement_groups(
+                    GroupNames=[placement_group_name]
+                )
             
             placement_groups = response.get('PlacementGroups', [])
             
@@ -627,16 +683,18 @@ class AWSManager:
             pg = placement_groups[0]
             state = pg.get('State', 'unknown')
             strategy = pg.get('Strategy', 'unknown')
+            pg_name = pg.get('GroupName', placement_group_name)
+            pg_id = pg.get('GroupId', 'unknown')
             
             logger.info(
-                f"Placement group '{placement_group_name}' found: "
-                f"strategy={strategy}, state={state}"
+                f"Placement group found: "
+                f"name={pg_name}, id={pg_id}, strategy={strategy}, state={state}"
             )
             
             # Check if placement group is available
             if state != 'available':
                 error_msg = (
-                    f"Placement group '{placement_group_name}' is not available "
+                    f"Placement group '{pg_name}' (ID: {pg_id}) is not available "
                     f"(current state: {state})"
                 )
                 logger.error(error_msg)
@@ -644,7 +702,8 @@ class AWSManager:
             
             # Log placement group details
             logger.info(f"Placement group validation successful:")
-            logger.info(f"  Name: {placement_group_name}")
+            logger.info(f"  Name: {pg_name}")
+            logger.info(f"  ID: {pg_id}")
             logger.info(f"  Strategy: {strategy}")
             logger.info(f"  State: {state}")
             
