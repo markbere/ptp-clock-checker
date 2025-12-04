@@ -25,8 +25,9 @@ cd ptp-instance-tester
 # Install dependencies (includes PyYAML for config file support)
 pip install -e .
 
-# For development (includes testing dependencies)
-pip install -e ".[dev]"
+#   If you wish to install a non-Debian packaged Python application,
+#   it may be easiest to use pipx install xyz, which will manage a
+#   virtual environment for you. Make sure you have pipx installed.
 ```
 
 **Dependencies**:
