@@ -1,0 +1,50 @@
+# PTP Instance Tester Configuration File
+# This is an example configuration file showing all available options
+
+# Instance types to test with quantities
+# Format: list of objects with 'type' and 'quantity' fields
+instance_types:
+  - type: c7i.large
+    quantity: 2
+  - type: m7i.xlarge
+    quantity: 3
+  - type: r7i.2xlarge
+    quantity: 1
+
+# Required: AWS subnet ID where instances will be launched
+subnet_id: subnet-12345678
+
+# Required: EC2 key pair name for SSH access
+key_name: my-key-pair
+
+# Required: Path to private SSH key file
+# Supports ~ for home directory expansion
+private_key_path: ~/.ssh/my-key.pem
+
+# Optional: EC2 placement group name
+# If specified, all instances will be launched into this placement group
+# The placement group must already exist in the same region/AZ
+# Supports cluster, partition, and spread strategies
+placement_group: my-cluster-pg
+
+# Optional: AWS region
+# If not specified, will be derived from subnet ID or AWS credentials
+region: us-east-1
+
+# Optional: AWS profile name
+# If not specified, uses default AWS credential chain
+profile: production
+
+# Optional: AMI ID to use for instances
+# If not specified, uses latest Amazon Linux 2023 AMI
+ami_id: ami-1234567890abcdef0
+
+# Optional: Security group ID for SSH access
+# If not specified, will be determined automatically
+security_group_id: sg-12345678
+
+# Notes:
+# - Command-line arguments override values in this config file
+# - All paths support ~ for home directory expansion
+# - Instance quantities default to 1 if not specified
+# - Placement group is optional and backward compatible

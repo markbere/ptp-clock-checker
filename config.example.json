@@ -1,0 +1,38 @@
+{
+  "_comment": "PTP Instance Tester Configuration File - JSON format",
+  "_description": "This is an example configuration file showing all available options",
+  
+  "instance_types": [
+    {
+      "type": "c7i.large",
+      "quantity": 2
+    },
+    {
+      "type": "m7i.xlarge",
+      "quantity": 3
+    },
+    {
+      "type": "r7i.2xlarge",
+      "quantity": 1
+    }
+  ],
+  
+  "subnet_id": "subnet-12345678",
+  "key_name": "my-key-pair",
+  "private_key_path": "~/.ssh/my-key.pem",
+  
+  "_optional_fields": "All fields below are optional",
+  
+  "placement_group": "my-cluster-pg",
+  "region": "us-east-1",
+  "profile": "production",
+  "ami_id": "ami-1234567890abcdef0",
+  "security_group_id": "sg-12345678",
+  
+  "_notes": [
+    "Command-line arguments override values in this config file",
+    "All paths support ~ for home directory expansion",
+    "Instance quantities default to 1 if not specified",
+    "Placement group is optional and backward compatible"
+  ]
+}
