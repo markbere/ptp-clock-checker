@@ -342,44 +342,6 @@ The tool automatically detects the architecture based on the instance type famil
    - **ARM64**: `/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64`
 4. **Runtime Verification**: After instance launch, the tool verifies the architecture by running `uname -m` on the instance
 
-### Graviton Instance Types with PTP Support
-
-The following Graviton (ARM64) instance families are known to support or potentially support PTP:
-
-#### Network-Optimized Graviton Instances
-- **c6gn**: Compute-optimized with enhanced networking (100 Gbps)
-  - Example: `c6gn.large`, `c6gn.xlarge`, `c6gn.2xlarge`, `c6gn.4xlarge`, `c6gn.8xlarge`, `c6gn.12xlarge`, `c6gn.16xlarge`
-- **c7gn**: 7th generation compute-optimized with enhanced networking (200 Gbps)
-  - Example: `c7gn.large`, `c7gn.xlarge`, `c7gn.2xlarge`, `c7gn.4xlarge`, `c7gn.8xlarge`, `c7gn.12xlarge`, `c7gn.16xlarge`
-
-#### General Purpose Graviton Instances
-- **c6g**: 6th generation compute-optimized
-- **c7g**: 7th generation compute-optimized
-- **m6g**: 6th generation general purpose
-- **m7g**: 7th generation general purpose
-- **r6g**: 6th generation memory-optimized
-- **r7g**: 7th generation memory-optimized
-- **t4g**: Burstable performance
-
-**Note**: PTP support on Graviton instances requires ENA driver version 2.10.0 or later, which is available on Amazon Linux 2023 and recent versions of Amazon Linux 2.
-
-### Supported x86_64 Instance Types
-
-Common x86_64 instance families that support or potentially support PTP:
-
-#### Network-Optimized x86_64 Instances
-- **c5n**: 5th generation compute-optimized with enhanced networking (100 Gbps)
-- **c6i**: 6th generation Intel compute-optimized
-- **c7i**: 7th generation Intel compute-optimized
-- **c6a**: 6th generation AMD compute-optimized
-- **c7a**: 7th generation AMD compute-optimized
-
-#### General Purpose x86_64 Instances
-- **m6i**: 6th generation Intel general purpose
-- **m7i**: 7th generation Intel general purpose
-- **r6i**: 6th generation Intel memory-optimized
-- **r7i**: 7th generation Intel memory-optimized
-
 ### Architecture-Specific Considerations
 
 #### Graviton (ARM64) Considerations
